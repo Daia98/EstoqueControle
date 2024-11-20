@@ -1,0 +1,96 @@
+apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
+apply plugin: "com.facebook.react"
+
+/**
+ * Este é o bloco de configuração para personalizar seu aplicativo Android React Native.
+ * Por padrão, você não precisa aplicar nenhuma configuração, apenas descomente as linhas que precisar.
+ */
+react {
+    /* Pastas */
+    // root = file("../../")  // Raiz do seu projeto
+    // reactNativeDir = file("../../node_modules/react-native")  // Pasta do pacote react-native
+    // codegenDir = file("../../node_modules/@react-native/codegen")  // Pasta do pacote Codegen
+    // cliFile = file("../../node_modules/react-native/cli.js")  // Entrypoint da CLI
+
+    /* Variantes */
+    // debuggableVariants = ["liteDebug", "prodDebug"]  // Variantes depuráveis
+
+    /* Empacotamento */
+    // nodeExecutableAndArgs = ["node"]  // Comando node e seus flags
+    // bundleCommand = "ram-bundle"  // Comando a ser executado ao empacotar
+    // bundleConfig = file(../rn-cli.config.js)  // Caminho para o arquivo de configuração da CLI
+    // bundleAssetName = "MyApplication.android.bundle"  // Nome do arquivo de ativos gerado
+    // entryFile = file("../js/MyApplication.android.js")  // Arquivo de entrada para geração do bundle
+    // extraPackagerArgs = []  // Flags extras para os comandos de bundle
+
+    /* Comandos Hermes */
+    // hermesCommand = "$rootDir/my-custom-hermesc/bin/hermesc"  // Comando do compilador Hermes
+    // hermesFlags = ["-O", "-output-source-map"]  // Flags para o compilador Hermes
+
+    /* Autolink */
+    autolinkLibrariesWithApp()
+}
+
+/**
+ * Defina como true para executar o Proguard em builds de Release para minificar o bytecode Java.
+ */
+def enableProguardInReleaseBuilds = false
+
+/**
+ * O sabor preferido do JavaScriptCore (JSC)
+ *
+ * Por exemplo, para usar a variante internacional:
+ * `def jscFlavor = 'org.webkit:android-jsc-intl:+'`
+ */
+def jscFlavor = 'org.webkit:android-jsc:+'
+
+android {
+    ndkVersion rootProject.ext.ndkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdk rootProject.ext.compileSdkVersion
+
+    namespace "com.controleestoque"
+    defaultConfig {
+        applicationId "com.controleestoque"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+
+    // Configuração do Java Toolchain
+    //java {
+        //toolchain {
+            //languageVersion = JavaLanguageVersion.of(11) // Defina a versão do Java como 11 ou a versão necessária
+        //}
+   // }
+}
+
+dependencies {
+    implementation("com.facebook.react:react-android")
+
+    if (hermesEnabled.toBoolean()) {
+        implementation("com.facebook.react:hermes-android")
+    } else {
+        implementation jscFlavor
+    }
+}
